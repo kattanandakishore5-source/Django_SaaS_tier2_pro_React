@@ -23,6 +23,14 @@ PLAN_FEATURES = {
     PLAN_PRO: {FEATURE_BASIC_ANALYTICS, FEATURE_USER_MANAGEMENT, FEATURE_ADVANCED_CHARTS},
 }
 
+LIMIT_PROJECTS = 'projects'
+
+PLAN_LIMITS = {
+    PLAN_FREE: {LIMIT_PROJECTS: 1},
+    PLAN_BASIC: {LIMIT_PROJECTS: 5},
+    PLAN_PRO: {LIMIT_PROJECTS: 1000},
+}
+
 
 def get_active_subscription(user):
     """
@@ -70,8 +78,20 @@ def has_feature_access(user, feature_key):
     """
     Server-authoritative check if user's subscription plan grants access to feature_key.
     """
+    if user.is_staff or user.is_superuser:
+        return True
     plan = get_user_plan(user)
     return feature_key in PLAN_FEATURES.get(plan, set())
+
+
+def get_user_limit(user, limit_key):
+    """
+    Server-authoritative check for a usage limit based on user's subscription.
+    """
+    if user.is_staff or user.is_superuser:
+        return 999999
+    plan = get_user_plan(user)
+    return PLAN_LIMITS.get(plan, {}).get(limit_key, 0)
 
 
 def subscription_required(view_func):

@@ -412,3 +412,9 @@ def dashboard_stats(request):
 ---
 
 For more help, visit: https://djangoadminpro.com/docs
+# #   R o l l b a c k   P r o c e d u r e s  
+ # # #   A p p / C o n t a i n e r   R o l l b a c k   ( T e s t e d )  
+ R e v e r t   t o   p r e v i o u s   S H A   a n d   r e b u i l d   c o n t a i n e r s .  
+ # # #   D a t a b a s e   R o l l b a c k   ( W a r n i n g )  
+ D o   N O T   a u t o m a t i c a l l y   r u n   b a c k w a r d s   m i g r a t i o n s .   U s e   P I T R .  
+ 

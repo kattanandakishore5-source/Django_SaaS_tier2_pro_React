@@ -68,10 +68,30 @@ def stripe_webhook_view(request):
         return HttpResponse(json.dumps({'error': "Internal server error"}), content_type='application/json', status=500)
 
 
+from .entitlements import get_user_plan, PLAN_FEATURES, PLAN_LIMITS, PLAN_BASIC
+
 class BillingViewSet(viewsets.ViewSet):
     """API viewset for Stripe Billing operations."""
 
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def entitlements(self, request):
+        user = request.user
+        plan = get_user_plan(user)
+        # Admins get bypass
+        if user.is_staff or user.is_superuser:
+            features = list(set.union(*PLAN_FEATURES.values()))
+            limits = {k: 999999 for k in PLAN_LIMITS.get(PLAN_BASIC, {}).keys()}
+        else:
+            features = list(PLAN_FEATURES.get(plan, set()))
+            limits = PLAN_LIMITS.get(plan, {})
+
+        return Response({
+            'plan': plan,
+            'features': features,
+            'limits': limits,
+        })
 
     @action(detail=False, methods=['get'])
     def subscription(self, request):

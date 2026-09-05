@@ -26,6 +26,9 @@ class DashboardTestCase(TestCase):
         self.assertTemplateUsed(response, 'dashboard/home.html')
 
     def test_dashboard_stats_api(self):
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
         response = self.client.get('/api/dashboard/stats/')
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -54,6 +57,9 @@ class DashboardChartTestCase(TestCase):
         self.client.login(username='test@example.com', password='testpass123')
 
     def test_signups_chart(self):
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
         response = self.client.get('/api/dashboard/chart-signups/?months=6')
         self.assertEqual(response.status_code, 200)
         data = response.json()

@@ -135,18 +135,25 @@ class SubscriptionEntitlementsTestCase(TestCase):
         res_stats_free = self.client.get('/api/dashboard/stats/')
         self.assertEqual(res_stats_free.status_code, 403)
 
-        # Basic user allowed /api/dashboard/stats/ but denied /api/dashboard/chart-signups/
+        # Basic user denied /api/dashboard/stats/ and /api/dashboard/chart-signups/ since they are not admins
         self.client.force_login(self.basic_user)
         res_stats_basic = self.client.get('/api/dashboard/stats/')
-        self.assertEqual(res_stats_basic.status_code, 200)
+        self.assertEqual(res_stats_basic.status_code, 403)
 
         res_charts_basic = self.client.get('/api/dashboard/chart-signups/')
         self.assertEqual(res_charts_basic.status_code, 403)
 
-        # Pro user allowed /api/dashboard/chart-signups/
+        # Pro user denied /api/dashboard/chart-signups/ since they are not admins
         self.client.force_login(self.pro_user)
         res_charts_pro = self.client.get('/api/dashboard/chart-signups/')
-        self.assertEqual(res_charts_pro.status_code, 200)
+        self.assertEqual(res_charts_pro.status_code, 403)
+        
+        # Admin user allowed
+        self.pro_user.is_staff = True
+        self.pro_user.is_superuser = True
+        self.pro_user.save()
+        res_charts_admin = self.client.get('/api/dashboard/chart-signups/')
+        self.assertEqual(res_charts_admin.status_code, 200)
 
     def test_cancel_at_period_end_expiration(self):
         # Active subscription with cancel_at_period_end=True but expired current_period_end
